@@ -1,0 +1,28 @@
+{
+	"name": "pibun",
+	"version": "0.1.0",
+	"type": "module",
+	"description": "PiBun - pi agent 可视化桌面客户端（Electrobun + Vue 3）",
+	"scripts": {
+		"start": "vite build && electrobun dev",
+		"dev": "electrobun dev --watch",
+		"dev:hmr": "concurrently \"bun run hmr\" \"bun run start\"",
+		"hmr": "vite --port 5173",
+		"build:canary": "vite build && electrobun build --env=canary",
+		"build:stable": "vite build && electrobun build --env=stable"
+	},
+	"dependencies": {
+		"@earendil-works/pi-coding-agent": "^0.84.2",
+		"electrobun": "1.18.1",
+		"marked": "^15.0.0"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@vitejs/plugin-vue": "^5.2.1",
+		"concurrently": "^9.1.0",
+		"typescript": "^5.7.2",
+		"vite": "^6.0.3",
+		"vue": "^3.5.13",
+		"vue-tsc": "^2.2.0"
+	}
+}

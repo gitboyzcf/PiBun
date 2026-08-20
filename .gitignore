@@ -1,0 +1,9 @@
+node_modules/
+build/
+dist/
+artifacts/
+*.tsbuildinfo
+
+# 本地产物
+.tmp-eb/
+spike/
