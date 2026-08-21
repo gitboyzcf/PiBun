@@ -642,6 +642,290 @@ body,
   color: var(--accent);
 }
 
+/* ---------- 头部工具栏 ---------- */
+.toolbar {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  margin-right: 4px;
+}
+.toolbar .icon-btn {
+  font-size: 15px;
+  padding: 5px 7px;
+}
+
+/* ---------- Footer 状态栏（TUI footer 对应） ---------- */
+.footer-bar {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px 4px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.footer-item {
+  white-space: nowrap;
+}
+.footer-model {
+  font-weight: 600;
+  color: var(--text);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.footer-btn {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.footer-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.footer-spacer {
+  flex: 1;
+}
+.footer-cwd {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: right;
+}
+
+/* ---------- 输入区弹出菜单（/ 和 @） ---------- */
+.input-box {
+  position: relative;
+}
+.input-box.bash {
+  background: #faf5ff;
+}
+.popup-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 50;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.popup-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.popup-item.active,
+.popup-item:hover {
+  background: var(--bg-tertiary);
+}
+.popup-cmd {
+  font-family: Consolas, monospace;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.popup-desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 排队消息 ---------- */
+.queue-bar {
+  max-width: 860px;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.queue-label {
+  font-size: 11px;
+  color: #b45309;
+  font-weight: 600;
+}
+.queue-chip {
+  font-size: 11px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 99px;
+  padding: 2px 10px;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.queue-restore {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* ---------- 附件 ---------- */
+.attach-bar {
+  max-width: 860px;
+  margin: 0 auto 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.attach-chip {
+  font-size: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.attach-remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1;
+}
+.attach-btn {
+  border: none;
+  background: none;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.attach-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+/* ---------- 发送按钮变体 ---------- */
+.send-btn.steer {
+  background: #2563eb;
+}
+.send-btn.followup {
+  background: #b45309;
+}
+
+/* ---------- 复制按钮 ---------- */
+.copy-btn {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-top: 6px;
+  opacity: 0.6;
+}
+.copy-btn:hover {
+  opacity: 1;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Fork 选择器 ---------- */
+.fork-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.fork-item {
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+.fork-item:hover {
+  border-color: var(--accent);
+  background: var(--bg-secondary);
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+.modal-sm {
+  width: 380px;
+}
+.modal-footer {
+  gap: 8px;
+}
+
+/* ---------- 统计弹窗 ---------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.stats-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.stats-value {
+  word-break: break-all;
+}
+.stats-value.mono {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+
+/* ---------- 快捷键弹窗 ---------- */
+.hotkey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.hotkey-key {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  min-width: 90px;
+  text-align: center;
+}
+
 /* 滚动条 */
 ::-webkit-scrollbar {
   width: 8px;

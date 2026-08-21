@@ -49,6 +49,59 @@ export interface ActiveSession {
 	isStreaming: boolean;
 }
 
+export interface SessionStatsPayload {
+	sessionFile?: string;
+	sessionId: string;
+	userMessages: number;
+	assistantMessages: number;
+	toolCalls: number;
+	totalMessages: number;
+	tokens: {
+		input: number;
+		output: number;
+		cacheRead: number;
+		cacheWrite: number;
+		total: number;
+	};
+	cost: number;
+	/** context 窗口占用（0-1），无则 undefined */
+	contextPercent?: number;
+	contextTokens?: number;
+	contextWindow?: number;
+	thinkingLevel: string;
+	availableThinkingLevels: string[];
+	model?: ModelInfo;
+	activeTools: string[];
+}
+
+export interface ForkMessage {
+	entryId: string;
+	text: string;
+}
+
+export interface QueueState {
+	steering: string[];
+	followUp: string[];
+}
+
+export interface FileHit {
+	path: string;
+	kind: "file" | "dir";
+}
+
+export interface ImageAttachment {
+	data: string; // base64
+	mimeType: string;
+	name: string;
+}
+
+export interface BashResultPayload {
+	output: string;
+	exitCode: number | null;
+	cancelled: boolean;
+	truncated: boolean;
+}
+
 export type PiBunRpcSchema = {
 	bun: {
 		requests: {
@@ -99,16 +152,70 @@ export type PiBunRpcSchema = {
 				params: Partial<AppSettings>;
 				response: { ok: boolean };
 			};
+			/** 会话统计 + thinking + context 用量（footer 数据源） */
+			getStats: {
+				params: { sessionId: string };
+				response: { stats: SessionStatsPayload | null };
+			};
+			/** fork/tree 选择器数据：会话内全部 user 消息 */
+			getForkMessages: {
+				params: { sessionId: string };
+				response: { messages: ForkMessage[] };
+			};
+			/** 导出会话，返回文件路径 */
+			exportSession: {
+				params: { sessionId: string; format: "html" | "jsonl" };
+				response: { path?: string; error?: string };
+			};
+			/** 当前排队消息 */
+			getQueue: {
+				params: { sessionId: string };
+				response: QueueState;
+			};
+			/** @ 文件补全：在会话 cwd 下模糊搜索 */
+			searchFiles: {
+				params: { sessionId: string; query: string };
+				response: { files: FileHit[] };
+			};
+			/** 执行 shell 命令（! / !! 前缀） */
+			execBash: {
+				params: { sessionId: string; command: string; hidden: boolean };
+				response: { result?: BashResultPayload; error?: string };
+			};
 		};
 		messages: {
-			/** 发送用户消息 */
-			prompt: { sessionId: string; text: string };
+			/** 发送用户消息（可带图片附件） */
+			prompt: {
+				sessionId: string;
+				text: string;
+				images?: ImageAttachment[];
+				/** 流式中发送时的排队方式 */
+				streamingBehavior?: "steer" | "followUp";
+			};
 			/** 流式中插队（steer） */
 			steer: { sessionId: string; text: string };
+			/** 排队等 agent 完成后执行（followUp） */
+			followUp: { sessionId: string; text: string };
 			/** 中断当前运行 */
 			abort: { sessionId: string };
+			/** 中断 shell 命令 */
+			abortBash: { sessionId: string };
 			/** 切换模型 */
 			setModel: { sessionId: string; provider: string; modelId: string };
+			/** 设置 thinking level */
+			setThinking: { sessionId: string; level: string };
+			/** 手动压缩上下文 */
+			compact: { sessionId: string; instructions?: string };
+			/** 会话重命名 */
+			rename: { sessionId: string; name: string };
+			/** tree 导航：跳到会话中任意节点继续（同一文件内分支） */
+			navigateTree: { sessionId: string; entryId: string };
+			/** 克隆当前分支为新会话文件 */
+			cloneSession: { sessionId: string };
+			/** 清空排队消息（恢复内容给编辑器） */
+			clearQueue: { sessionId: string };
+			/** 重载扩展/技能/模板/上下文文件 */
+			reloadResources: { sessionId: string };
 		};
 	};
 	webview: {

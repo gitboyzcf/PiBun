@@ -8,6 +8,8 @@ import type {
 	AppSettings,
 	ModelInfo,
 	ProviderInfo,
+	QueueState,
+	SessionStatsPayload,
 	SessionSummary,
 } from "../shared/rpc-schema";
 
@@ -49,6 +51,14 @@ interface Toast {
 let seq = 0;
 const nid = () => `item-${++seq}`;
 
+export type ModalKind =
+	| "settings"
+	| "fork"
+	| "stats"
+	| "hotkeys"
+	| "rename"
+	| null;
+
 export const store = reactive({
 	ready: false,
 	settings: null as AppSettings | null,
@@ -58,7 +68,11 @@ export const store = reactive({
 	items: [] as ChatItem[],
 	models: [] as ModelInfo[],
 	toasts: [] as Toast[],
-	settingsOpen: false,
+	modal: null as ModalKind,
+	stats: null as SessionStatsPayload | null,
+	queue: { steering: [], followUp: [] } as QueueState,
+	/** abort/clearQueue 后恢复给编辑器的文本 */
+	restoredText: "",
 	/** 当前流式中的 assistant 条目 */
 	_streamingItem: null as AssistantItem | null,
 });
@@ -118,12 +132,36 @@ export function handleAgentEvent(sessionId: string, raw: unknown) {
 		attempt?: number;
 		maxAttempts?: number;
 		errorMessage?: string;
+		delta?: string;
+		steering?: readonly string[];
+		followUp?: readonly string[];
 	};
 
 	switch (e.type) {
 		case "agent_start":
 			if (store.current) store.current.isStreaming = true;
 			break;
+
+		case "queue_update":
+			store.queue = {
+				steering: [...(e.steering ?? [])],
+				followUp: [...(e.followUp ?? [])],
+			};
+			break;
+
+		case "bash_execution_update": {
+			// 用户 `!` 命令的流式输出：追加到运行中的 user-bash 卡片
+			const item = [...store.items]
+				.reverse()
+				.find(
+					(i): i is ToolItem =>
+						i.kind === "tool" &&
+						i.toolCallId === "user-bash" &&
+						i.status === "running",
+				);
+			if (item && e.delta) item.resultText += e.delta;
+			break;
+		}
 
 		case "message_start":
 			if (e.message?.role === "assistant") {
@@ -247,7 +285,23 @@ export function historyToItems(messages: unknown[]): ChatItem[] {
 			toolName?: string;
 			toolCallId?: string;
 			isError?: boolean;
+			command?: string;
+			output?: string;
+			exitCode?: number | null;
 		};
+		// 用户 `!` bash 执行消息（BashExecutionMessage）
+		if (m.command !== undefined && m.output !== undefined) {
+			items.push({
+				kind: "tool",
+				id: nid(),
+				toolCallId: "user-bash",
+				toolName: "bash",
+				args: { command: m.command },
+				status: m.exitCode === 0 ? "done" : "error",
+				resultText: m.output,
+			});
+			continue;
+		}
 		if (m.role === "user") {
 			const text = contentToText(m.content);
 			if (text.trim()) items.push({ kind: "user", id: nid(), text });

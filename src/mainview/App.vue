@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { store } from "./store";
-import { bootstrap } from "./actions";
+import { bootstrap, compactSession, exportSession, cloneSession } from "./actions";
 import Sidebar from "./components/Sidebar.vue";
 import ChatView from "./components/ChatView.vue";
 import InputBox from "./components/InputBox.vue";
+import FooterBar from "./components/FooterBar.vue";
 import SettingsModal from "./components/SettingsModal.vue";
+import ForkModal from "./components/ForkModal.vue";
+import StatsModal from "./components/StatsModal.vue";
+import HotkeysModal from "./components/HotkeysModal.vue";
+import RenameModal from "./components/RenameModal.vue";
 
 onMounted(bootstrap);
 </script>
@@ -23,14 +28,28 @@ onMounted(bootstrap);
             {{ store.current.model.name }}
           </span>
         </div>
-        <button class="icon-btn" title="设置" @click="store.settingsOpen = true">⚙</button>
+        <div v-if="store.current" class="toolbar">
+          <button class="icon-btn" title="重命名 (/name)" @click="store.modal = 'rename'">✏️</button>
+          <button class="icon-btn" title="分叉/树导航 (/tree)" @click="store.modal = 'fork'">🌿</button>
+          <button class="icon-btn" title="克隆会话 (/clone)" @click="cloneSession">📑</button>
+          <button class="icon-btn" title="压缩上下文 (/compact)" @click="compactSession()">🗜</button>
+          <button class="icon-btn" title="导出 HTML (/export)" @click="exportSession('html')">📤</button>
+          <button class="icon-btn" title="会话统计 (/session)" @click="store.modal = 'stats'">📊</button>
+          <button class="icon-btn" title="快捷键" @click="store.modal = 'hotkeys'">⌨️</button>
+        </div>
+        <button class="icon-btn" title="设置" @click="store.modal = 'settings'">⚙</button>
       </header>
 
       <ChatView />
+      <FooterBar />
       <InputBox />
     </main>
 
-    <SettingsModal v-if="store.settingsOpen" @close="store.settingsOpen = false" />
+    <SettingsModal v-if="store.modal === 'settings'" @close="store.modal = null" />
+    <ForkModal v-if="store.modal === 'fork'" @close="store.modal = null" />
+    <StatsModal v-if="store.modal === 'stats'" @close="store.modal = null" />
+    <HotkeysModal v-if="store.modal === 'hotkeys'" @close="store.modal = null" />
+    <RenameModal v-if="store.modal === 'rename'" @close="store.modal = null" />
 
     <div class="toast-stack">
       <div

@@ -11,10 +11,16 @@ import {
 	type AgentSessionEvent,
 } from "@earendil-works/pi-coding-agent";
 import { existsSync } from "fs";
+import { readdir } from "fs/promises";
+import { join, relative } from "path";
 import type {
 	ActiveSession,
+	BashResultPayload,
+	FileHit,
+	ForkMessage,
 	ModelInfo,
 	ProviderInfo,
+	SessionStatsPayload,
 	SessionSummary,
 } from "../shared/rpc-schema";
 
@@ -179,14 +185,29 @@ class PiService {
 		return managed ? this.toActive(managed.session, managed.cwd) : null;
 	}
 
-	async prompt(sessionId: string, text: string) {
+	async prompt(
+		sessionId: string,
+		text: string,
+		images?: Array<{ data: string; mimeType: string }>,
+		streamingBehavior?: "steer" | "followUp",
+	) {
 		const managed = this.sessions.get(sessionId);
 		if (!managed) throw new Error("会话不存在或已关闭");
 		const { session } = managed;
+		const imageContent = images?.map((img) => ({
+			type: "image" as const,
+			data: img.data,
+			mimeType: img.mimeType,
+		}));
 		if (session.isStreaming) {
-			await session.prompt(text, { streamingBehavior: "steer" });
+			await session.prompt(text, {
+				streamingBehavior: streamingBehavior ?? "steer",
+				...(imageContent ? { images: imageContent } : {}),
+			});
 		} else {
-			await session.prompt(text);
+			await session.prompt(text, {
+				...(imageContent ? { images: imageContent } : {}),
+			});
 		}
 	}
 
@@ -209,6 +230,200 @@ class PiService {
 		if (!model) throw new Error(`模型不存在: ${provider}/${modelId}`);
 		await managed.session.setModel(model);
 		this.stateSink(this.toActive(managed.session, managed.cwd));
+	}
+
+	// ================= TUI 功能集 =================
+
+	private require(sessionId: string): AgentSession {
+		const managed = this.sessions.get(sessionId);
+		if (!managed) throw new Error("会话不存在或已关闭");
+		return managed.session;
+	}
+
+	/** footer 统计：token/cost/context/thinking/模型/工具 */
+	getStats(sessionId: string): SessionStatsPayload | null {
+		const managed = this.sessions.get(sessionId);
+		if (!managed) return null;
+		const { session } = managed;
+		const s = session.getSessionStats();
+		const ctx = session.getContextUsage() as
+			| { tokens?: number; contextWindow?: number; percent?: number }
+			| undefined;
+		const m = session.model;
+		return {
+			sessionFile: s.sessionFile,
+			sessionId: s.sessionId,
+			userMessages: s.userMessages,
+			assistantMessages: s.assistantMessages,
+			toolCalls: s.toolCalls,
+			totalMessages: s.totalMessages,
+			tokens: { ...s.tokens },
+			cost: s.cost,
+			contextPercent:
+				ctx?.percent ??
+				(ctx?.tokens != null && ctx?.contextWindow
+					? ctx.tokens / ctx.contextWindow
+					: undefined),
+			contextTokens: ctx?.tokens,
+			contextWindow: ctx?.contextWindow,
+			thinkingLevel: session.thinkingLevel,
+			availableThinkingLevels: session.getAvailableThinkingLevels(),
+			model: m
+				? {
+						provider: m.provider,
+						id: m.id,
+						name: (m as { name?: string }).name ?? m.id,
+					}
+				: undefined,
+			activeTools: session.getActiveToolNames(),
+		};
+	}
+
+	getForkMessages(sessionId: string): ForkMessage[] {
+		return this.require(sessionId).getUserMessagesForForking();
+	}
+
+	async exportSession(sessionId: string, format: "html" | "jsonl") {
+		try {
+			const session = this.require(sessionId);
+			const path =
+				format === "html"
+					? await session.exportToHtml()
+					: session.exportToJsonl();
+			return { path };
+		} catch (e) {
+			return { error: String(e) };
+		}
+	}
+
+	getQueue(sessionId: string) {
+		const session = this.require(sessionId);
+		return {
+			steering: [...session.getSteeringMessages()],
+			followUp: [...session.getFollowUpMessages()],
+		};
+	}
+
+	clearQueue(sessionId: string) {
+		return this.require(sessionId).clearQueue();
+	}
+
+	setThinking(sessionId: string, level: string) {
+		const session = this.require(sessionId);
+		session.setThinkingLevel(level as never);
+	}
+
+	async compact(sessionId: string, instructions?: string) {
+		await this.require(sessionId).compact(instructions || undefined);
+	}
+
+	rename(sessionId: string, name: string) {
+		const managed = this.sessions.get(sessionId);
+		if (!managed) return;
+		managed.session.setSessionName(name);
+		this.stateSink(this.toActive(managed.session, managed.cwd));
+	}
+
+	async navigateTree(sessionId: string, entryId: string) {
+		const result = await this.require(sessionId).navigateTree(entryId);
+		const managed = this.sessions.get(sessionId);
+		if (managed) this.stateSink(this.toActive(managed.session, managed.cwd));
+		return result;
+	}
+
+	async cloneSession(sessionId: string) {
+		const managed = this.sessions.get(sessionId);
+		if (!managed) throw new Error("会话不存在或已关闭");
+		const file = managed.session.sessionFile;
+		if (!file) throw new Error("会话未持久化，无法克隆");
+		const rt = await this.getRuntime();
+		const sm = SessionManager.forkFrom(file, managed.cwd);
+		const { session } = await createAgentSession({
+			cwd: managed.cwd,
+			modelRuntime: rt,
+			sessionManager: sm,
+		});
+		this.attach(session, managed.cwd);
+		return this.toActive(session, managed.cwd);
+	}
+
+	async reloadResources(sessionId: string) {
+		await this.require(sessionId).reload();
+	}
+
+	async execBash(sessionId: string, command: string, hidden: boolean) {
+		try {
+			const session = this.require(sessionId);
+			const r = await session.executeBash(command, undefined, {
+				excludeFromContext: hidden,
+			});
+			const result: BashResultPayload = {
+				output: r.output ?? "",
+				exitCode: r.exitCode ?? null,
+				cancelled: !!r.cancelled,
+				truncated: !!r.truncated,
+			};
+			return { result };
+		} catch (e) {
+			return { error: String(e) };
+		}
+	}
+
+	abortBash(sessionId: string) {
+		this.sessions.get(sessionId)?.session.abortBash();
+	}
+
+	/** @ 文件补全：递归扫描 cwd（跳过 node_modules/.git 等），模糊匹配 */
+	async searchFiles(sessionId: string, query: string): Promise<FileHit[]> {
+		const managed = this.sessions.get(sessionId);
+		if (!managed) return [];
+		const root = managed.cwd;
+		const SKIP = new Set([
+			"node_modules",
+			".git",
+			"dist",
+			"build",
+			".next",
+			".cache",
+			"coverage",
+		]);
+		const hits: FileHit[] = [];
+		const q = query.toLowerCase();
+		const walk = async (dir: string, depth: number): Promise<void> => {
+			if (depth > 6 || hits.length >= 200) return;
+			let entries;
+			try {
+				entries = await readdir(dir, { withFileTypes: true });
+			} catch {
+				return;
+			}
+			for (const e of entries) {
+				if (hits.length >= 200) return;
+				if (e.name.startsWith(".") && e.name !== ".env") continue;
+				const full = join(dir, e.name);
+				const rel = relative(root, full);
+				if (e.isDirectory()) {
+					if (SKIP.has(e.name)) continue;
+					if (!q || e.name.toLowerCase().includes(q)) {
+						hits.push({ path: rel, kind: "dir" });
+					}
+					await walk(full, depth + 1);
+				} else if (!q || rel.toLowerCase().includes(q)) {
+					hits.push({ path: rel, kind: "file" });
+				}
+			}
+		};
+		await walk(root, 0);
+		// 文件优先、路径短的优先
+		return hits
+			.sort((a, b) =>
+				a.kind !== b.kind
+					? a.kind === "file"
+						? -1
+						: 1
+					: a.path.length - b.path.length,
+			)
+			.slice(0, 12);
 	}
 
 	private attach(session: AgentSession, cwd: string) {

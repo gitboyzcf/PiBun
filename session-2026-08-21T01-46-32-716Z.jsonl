@@ -1,0 +1,4 @@
+{"type":"session","version":3,"id":"01a021ff-91fd-7582-80f1-0d2ab479aa40","timestamp":"2026-08-21T01:46:32.717Z","cwd":"D:\\pi-desktop"}
+{"type":"thinking_level_change","id":"cf64cb46","parentId":null,"timestamp":"2026-08-21T01:46:32.466Z","thinkingLevel":"off"}
+{"type":"session_info","id":"9a508299","parentId":"cf64cb46","timestamp":"2026-08-21T01:46:32.471Z","name":"冒烟测试会话"}
+{"type":"message","id":"8c61cd9e","parentId":"9a508299","timestamp":"2026-08-21T01:46:32.716Z","message":{"role":"bashExecution","command":"echo hello-pibun","output":"hello-pibun\n","exitCode":0,"cancelled":false,"truncated":false,"timestamp":1787276792716,"excludeFromContext":false}}

@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { marked } from "marked";
 import type { ChatItem } from "../store";
+import { showToast } from "../store";
 import ToolCallCard from "./ToolCallCard.vue";
 
 const props = defineProps<{ item: ChatItem }>();
@@ -15,6 +16,13 @@ const thinkingHtml = computed(() => {
   if (props.item.kind !== "assistant" || !props.item.thinking) return "";
   return marked.parse(props.item.thinking, { async: false }) as string;
 });
+
+function copyText(text: string) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => showToast("info", "已复制"))
+    .catch(() => showToast("error", "复制失败"));
+}
 </script>
 
 <template>
@@ -31,6 +39,14 @@ const thinkingHtml = computed(() => {
       </details>
       <div class="markdown" v-html="html"></div>
       <span v-if="item.streaming" class="cursor-blink">▍</span>
+      <button
+        v-if="!item.streaming && item.text"
+        class="copy-btn"
+        title="复制回复 (/copy)"
+        @click="copyText(item.text)"
+      >
+        📋 复制
+      </button>
     </div>
   </div>
 

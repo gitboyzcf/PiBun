@@ -24,9 +24,14 @@ async function getMainViewUrl(): Promise<string> {
 	return "views://mainview/index.html";
 }
 
+function toastError(e: unknown) {
+	rpc.send.toast({ level: "error", text: String(e) });
+}
+
 // ---- RPC 定义（bun 侧 handlers）----
 const rpc = BrowserView.defineRPC<PiBunRpcSchema>({
-	maxRequestTime: 60_000,
+	// bash 命令可能长时间运行，请求超时要放宽
+	maxRequestTime: 600_000,
 	handlers: {
 		requests: {
 			getBootstrap: async () => ({
@@ -56,25 +61,71 @@ const rpc = BrowserView.defineRPC<PiBunRpcSchema>({
 				settingsStore.save(patch);
 				return { ok: true };
 			},
+			getStats: ({ sessionId }) => ({
+				stats: piService.getStats(sessionId),
+			}),
+			getForkMessages: ({ sessionId }) => ({
+				messages: piService.getForkMessages(sessionId),
+			}),
+			exportSession: ({ sessionId, format }) =>
+				piService.exportSession(sessionId, format),
+			getQueue: ({ sessionId }) => piService.getQueue(sessionId),
+			searchFiles: async ({ sessionId, query }) => ({
+				files: await piService.searchFiles(sessionId, query),
+			}),
+			execBash: ({ sessionId, command, hidden }) =>
+				piService.execBash(sessionId, command, hidden),
 		},
 		messages: {
-			prompt: ({ sessionId, text }) => {
-				piService.prompt(sessionId, text).catch((e) => {
-					rpc.send.toast({ level: "error", text: String(e) });
-				});
+			prompt: ({ sessionId, text, images, streamingBehavior }) => {
+				piService
+					.prompt(sessionId, text, images, streamingBehavior)
+					.catch(toastError);
 			},
 			steer: ({ sessionId, text }) => {
-				piService.steer(sessionId, text).catch((e) => {
-					rpc.send.toast({ level: "error", text: String(e) });
-				});
+				piService.steer(sessionId, text).catch(toastError);
+			},
+			followUp: ({ sessionId, text }) => {
+				piService.followUp(sessionId, text).catch(toastError);
 			},
 			abort: ({ sessionId }) => {
 				piService.abort(sessionId).catch(() => {});
 			},
+			abortBash: ({ sessionId }) => piService.abortBash(sessionId),
 			setModel: ({ sessionId, provider, modelId }) => {
-				piService.setModel(sessionId, provider, modelId).catch((e) => {
-					rpc.send.toast({ level: "error", text: String(e) });
-				});
+				piService.setModel(sessionId, provider, modelId).catch(toastError);
+			},
+			setThinking: ({ sessionId, level }) => {
+				try {
+					piService.setThinking(sessionId, level);
+				} catch (e) {
+					toastError(e);
+				}
+			},
+			compact: ({ sessionId, instructions }) => {
+				piService.compact(sessionId, instructions).catch(toastError);
+			},
+			rename: ({ sessionId, name }) => piService.rename(sessionId, name),
+			navigateTree: ({ sessionId, entryId }) => {
+				piService.navigateTree(sessionId, entryId).catch(toastError);
+			},
+			cloneSession: ({ sessionId }) => {
+				piService.cloneSession(sessionId).catch(toastError);
+			},
+			clearQueue: ({ sessionId }) => {
+				try {
+					piService.clearQueue(sessionId);
+				} catch {
+					/* 会话不存在时忽略 */
+				}
+			},
+			reloadResources: ({ sessionId }) => {
+				piService
+					.reloadResources(sessionId)
+					.then(() =>
+						rpc.send.toast({ level: "info", text: "资源已重载" }),
+					)
+					.catch(toastError);
 			},
 		},
 	},
