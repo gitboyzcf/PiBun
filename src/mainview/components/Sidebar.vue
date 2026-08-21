@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NButton } from "naive-ui";
 import { Add, FolderOpen, History } from "@icon-park/vue-next";
+import logoUrl from "../assets/logo.png";
 import { store } from "../store";
 import { newSession, openSession } from "../actions";
 
@@ -17,7 +18,7 @@ function fmtTime(iso: string) {
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <span class="brand-logo">π</span>
+      <img :src="logoUrl" class="brand-logo" alt="PiBun" />
       <span class="brand-name">PiBun</span>
     </div>
 

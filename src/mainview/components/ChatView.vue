@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { nextTick, watch, ref, TransitionGroup } from "vue";
 import { NButton } from "naive-ui";
-import { Down, Robot } from "@icon-park/vue-next";
+import { Down } from "@icon-park/vue-next";
+import logoUrl from "../assets/logo.png";
 import { store } from "../store";
 import MessageItem from "./MessageItem.vue";
 
@@ -63,7 +64,7 @@ watch(
   <div class="chat-wrap">
     <div ref="listRef" class="chat-view" @scroll.passive="onScroll">
       <div v-if="!store.current" class="welcome">
-        <div class="welcome-logo"><robot theme="outline" size="34" fill="#fff" /></div>
+        <img :src="logoUrl" class="welcome-logo-img" alt="PiBun" />
         <h2>PiBun</h2>
         <p>pi agent 可视化客户端 — 点击左侧「新会话」开始</p>
         <p class="welcome-tips">/ 命令 · @ 引用文件 · ! 执行 shell · 支持粘贴图片</p>

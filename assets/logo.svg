@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#13ba90"/>
+      <stop offset="1" stop-color="#0a7559"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="piGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f9a77"/>
+      <stop offset="1" stop-color="#096b52"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 圆角方形底板 -->
+  <rect x="16" y="16" width="992" height="992" rx="232" fill="url(#bg)"/>
+  <rect x="16" y="16" width="992" height="992" rx="232" fill="url(#shine)"/>
+
+  <!-- 白色聊天气泡（主体 + 居中圆头尾巴） -->
+  <rect x="252" y="232" width="520" height="420" rx="96" fill="#ffffff"/>
+  <path d="M 448 620 L 512 800 L 576 620 Z"
+        fill="#ffffff" stroke="#ffffff" stroke-width="36" stroke-linejoin="round"/>
+
+  <!-- 气泡内的 π（深品牌绿，加粗宽距） -->
+  <g fill="url(#piGrad)">
+    <!-- 横杠 -->
+    <rect x="362" y="352" width="300" height="76" rx="30"/>
+    <!-- 左腿 -->
+    <rect x="398" y="396" width="76" height="252" rx="30"/>
+    <!-- 右腿 -->
+    <rect x="550" y="396" width="76" height="252" rx="30"/>
+  </g>
+</svg>

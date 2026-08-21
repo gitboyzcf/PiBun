@@ -22,6 +22,7 @@ export default {
 		},
 		win: {
 			bundleCEF: false,
+			icon: "assets/icon.ico",
 		},
 	},
 } satisfies ElectrobunConfig;

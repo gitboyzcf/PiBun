@@ -22,6 +22,7 @@ import ForkModal from "./components/ForkModal.vue";
 import StatsModal from "./components/StatsModal.vue";
 import HotkeysModal from "./components/HotkeysModal.vue";
 import RenameModal from "./components/RenameModal.vue";
+import SplashScreen from "./components/SplashScreen.vue";
 
 onMounted(bootstrap);
 
@@ -103,5 +104,6 @@ const themeOverrides = {
       <HotkeysModal v-if="store.modal === 'hotkeys'" @close="store.modal = null" />
       <RenameModal v-if="store.modal === 'rename'" @close="store.modal = null" />
     </div>
+    <SplashScreen :ready="store.ready" />
   </n-config-provider>
 </template>

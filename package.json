@@ -9,7 +9,8 @@
 		"dev:hmr": "concurrently \"bun run hmr\" \"bun run start\"",
 		"hmr": "vite --port 5173",
 		"build:canary": "vite build && electrobun build --env=canary",
-		"build:stable": "vite build && electrobun build --env=stable"
+		"build:stable": "vite build && electrobun build --env=stable",
+		"icons": "bun run scripts/gen-icons.ts"
 	},
 	"dependencies": {
 		"@earendil-works/pi-coding-agent": "^0.84.2",
@@ -19,9 +20,12 @@
 		"naive-ui": "^2.45.2"
 	},
 	"devDependencies": {
+		"@resvg/resvg-js": "^2.6.2",
 		"@types/bun": "latest",
 		"@vitejs/plugin-vue": "^5.2.1",
 		"concurrently": "^9.1.0",
+		"png-to-ico": "^3.0.2",
+		"rcedit": "^5.0.2",
 		"typescript": "^5.7.2",
 		"vite": "^6.0.3",
 		"vue": "^3.5.13",

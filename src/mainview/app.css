@@ -60,12 +60,14 @@ body,
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-  font-weight: 700;
+  display: block;
+}
+.welcome-logo-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  margin: 0 auto 14px;
+  box-shadow: 0 10px 28px rgba(16, 163, 127, 0.25);
 }
 .brand-name {
   font-weight: 700;
