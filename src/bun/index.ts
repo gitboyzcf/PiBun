@@ -146,7 +146,7 @@ piService.onState((session) => {
 // ---- 窗口 ----
 const url = await getMainViewUrl();
 
-new BrowserWindow({
+const mainWindow = new BrowserWindow({
 	title: "Pi Agent Desktop",
 	url,
 	rpc,
@@ -157,5 +157,60 @@ new BrowserWindow({
 		y: 60,
 	},
 });
+
+/**
+ * 启动布局自愈：
+ * 部分机器（DPI 缩放/多显示器）启动瞬间 webview 尺寸与窗口不同步，
+ * 表现为输入框等紧贴窗口边缘，手动拖拽一次窗口才恢复。
+ * 这里延迟比对 webview 物理像素尺寸与窗口 frame，不一致则轻推 1px 强制重排。
+ */
+setTimeout(() => {
+	(async () => {
+		try {
+			const evalReq = (
+				rpc.request as unknown as Record<
+					string,
+					(p: { script: string }) => Promise<string>
+				>
+			).evaluateJavascriptWithResponse;
+			const ratio = Number(
+				await evalReq({ script: "window.devicePixelRatio" }),
+			);
+			const innerW = Number(await evalReq({ script: "window.innerWidth" }));
+			const innerH = Number(await evalReq({ script: "window.innerHeight" }));
+			const frame = mainWindow.getFrame();
+			const physW = Math.round(innerW * ratio);
+			const physH = Math.round(innerH * ratio);
+			if (
+				Math.abs(physW - frame.width) > 2 ||
+				Math.abs(physH - frame.height) > 2
+			) {
+				console.log(
+					`[layout-fix] webview ${physW}x${physH} != frame ${frame.width}x${frame.height}, nudging`,
+				);
+				mainWindow.setFrame(
+					frame.x,
+					frame.y,
+					frame.width + 1,
+					frame.height + 1,
+				);
+				setTimeout(() => {
+					try {
+						mainWindow.setFrame(
+							frame.x,
+							frame.y,
+							frame.width,
+							frame.height,
+						);
+					} catch {
+						/* ignore */
+					}
+				}, 150);
+			}
+		} catch (e) {
+			console.log("[layout-fix] check failed:", e);
+		}
+	})();
+}, 600);
 
 console.log("pi-agent-desktop started!");
