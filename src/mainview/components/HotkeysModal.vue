@@ -20,9 +20,9 @@ const groups = [
   {
     title: "界面",
     items: [
-      ["点击 footer 🧠", "切换 thinking level"],
+      ["点击 footer thinking 按钮", "切换 thinking level"],
       ["输入框边框颜色", "当前 thinking level 指示"],
-      ["↩ 取回", "把排队消息恢复到输入框"],
+      ["「取回」按钮", "把排队消息恢复到输入框"],
     ],
   },
 ];

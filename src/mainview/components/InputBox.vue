@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { NButton, NTooltip } from "naive-ui";
-import { Picture, Send, Pause, Right, History } from "@icon-park/vue-next";
+import {
+  Picture,
+  Send,
+  Pause,
+  Right,
+  History,
+  Return,
+  FolderOpen,
+  DocDetail,
+} from "@icon-park/vue-next";
 import { store } from "../store";
 import {
 	sendPrompt,
@@ -278,13 +287,15 @@ function restoreQueue() {
       >
         {{ q.slice(0, 30) }}{{ q.length > 30 ? "…" : "" }}
       </span>
-      <button class="queue-restore" title="取回排队消息" @click="restoreQueue">↩ 取回</button>
+      <button class="queue-restore" title="取回排队消息" @click="restoreQueue">
+        <return theme="outline" size="12" /> 取回
+      </button>
     </div>
 
     <!-- 附件预览 -->
     <div v-if="attachments.length" class="attach-bar">
       <span v-for="(a, i) in attachments" :key="i" class="attach-chip">
-        🖼 {{ a.name }}
+        <picture theme="outline" size="12" /> {{ a.name }}
         <button class="attach-remove" @click="attachments.splice(i, 1)">×</button>
       </span>
     </div>
@@ -317,7 +328,11 @@ function restoreQueue() {
           :class="{ active: i === fileIndex }"
           @mousedown.prevent="insertMention(f)"
         >
-          <span class="popup-cmd">{{ f.kind === "dir" ? "📁" : "📄" }} {{ f.path }}</span>
+          <span class="popup-cmd">
+            <folder-open v-if="f.kind === 'dir'" theme="outline" size="13" />
+            <doc-detail v-else theme="outline" size="13" />
+            {{ f.path }}
+          </span>
         </div>
       </div>
 

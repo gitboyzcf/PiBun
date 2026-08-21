@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { marked } from "marked";
 import { NButton } from "naive-ui";
 import { Copy } from "@icon-park/vue-next";
+import logoUrl from "../assets/logo.png";
 import type { ChatItem } from "../store";
 import { showToast } from "../store";
 import ToolCallCard from "./ToolCallCard.vue";
@@ -33,7 +34,7 @@ function copyText(text: string) {
   </div>
 
   <div v-else-if="item.kind === 'assistant'" class="msg-row assistant">
-    <div class="avatar">π</div>
+    <img :src="logoUrl" class="avatar" alt="" />
     <div class="assistant-body">
       <details v-if="item.thinking" class="thinking-block">
         <summary>思考过程</summary>

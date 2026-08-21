@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { NConfigProvider, NButton, NTooltip } from "naive-ui";
+import { NConfigProvider, NButton, NTooltip, NDropdown } from "naive-ui";
 import {
   Setting,
   Edit,
@@ -10,9 +10,12 @@ import {
   Export,
   ChartPie,
   Keyboard,
+  MoreOne,
 } from "@icon-park/vue-next";
 import { store } from "./store";
 import { bootstrap, compactSession, exportSession, cloneSession } from "./actions";
+import { h, type Component } from "vue";
+import { NIcon } from "naive-ui";
 import Sidebar from "./components/Sidebar.vue";
 import ChatView from "./components/ChatView.vue";
 import InputBox from "./components/InputBox.vue";
@@ -35,6 +38,30 @@ const themeOverrides = {
     borderRadius: "10px",
   },
 };
+
+// 头部「更多」菜单（窄窗口也不溢出）
+const renderIcon = (icon: Component) => () =>
+  h(NIcon, null, { default: () => h(icon, { theme: "outline", size: 14 }) });
+
+const moreOptions = [
+  { label: "分叉/树导航 (/tree)", key: "fork", icon: renderIcon(Branch) },
+  { label: "克隆会话 (/clone)", key: "clone", icon: renderIcon(CopyOne) },
+  { label: "压缩上下文 (/compact)", key: "compact", icon: renderIcon(Compression) },
+  { label: "导出 HTML (/export)", key: "export", icon: renderIcon(Export) },
+  { label: "会话统计 (/session)", key: "stats", icon: renderIcon(ChartPie) },
+  { label: "快捷键", key: "hotkeys", icon: renderIcon(Keyboard) },
+];
+
+function onMoreSelect(key: string) {
+  switch (key) {
+    case "fork": store.modal = "fork"; break;
+    case "clone": cloneSession(); break;
+    case "compact": compactSession(); break;
+    case "export": exportSession("html"); break;
+    case "stats": store.modal = "stats"; break;
+    case "hotkeys": store.modal = "hotkeys"; break;
+  }
+}
 </script>
 
 <template>
@@ -57,36 +84,15 @@ const themeOverrides = {
                 <template #icon><edit /></template>
               </n-button>
             </template>重命名 (/name)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="store.modal = 'fork'">
-                <template #icon><branch /></template>
+            <n-dropdown
+              trigger="click"
+              :options="moreOptions"
+              @select="onMoreSelect"
+            >
+              <n-button quaternary circle>
+                <template #icon><more-one /></template>
               </n-button>
-            </template>分叉/树导航 (/tree)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="cloneSession">
-                <template #icon><copy-one /></template>
-              </n-button>
-            </template>克隆会话 (/clone)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="compactSession()">
-                <template #icon><compression /></template>
-              </n-button>
-            </template>压缩上下文 (/compact)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="exportSession('html')">
-                <template #icon><export /></template>
-              </n-button>
-            </template>导出 HTML (/export)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="store.modal = 'stats'">
-                <template #icon><chart-pie /></template>
-              </n-button>
-            </template>会话统计 (/session)</n-tooltip>
-            <n-tooltip trigger="hover"><template #trigger>
-              <n-button quaternary circle @click="store.modal = 'hotkeys'">
-                <template #icon><keyboard /></template>
-              </n-button>
-            </template>快捷键</n-tooltip>
+            </n-dropdown>
           </div>
           <n-button quaternary circle @click="store.modal = 'settings'">
             <template #icon><setting /></template>

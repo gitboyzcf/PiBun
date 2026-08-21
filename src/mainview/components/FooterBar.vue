@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { NButton } from "naive-ui";
-import { Robot, Brain, FolderOpen } from "@icon-park/vue-next";
+import { Cpu, Brain, FolderOpen } from "@icon-park/vue-next";
 import { store } from "../store";
 import { cycleThinking, refreshStats } from "../actions";
 
@@ -44,7 +44,7 @@ const contextColor = computed(() => {
 <template>
   <div v-if="store.current" class="footer-bar">
     <span class="footer-item footer-model" :title="store.stats?.model?.id">
-      <robot theme="outline" size="14" />
+      <cpu theme="outline" size="14" />
       {{ store.stats?.model?.name ?? "未选模型" }}
     </span>
     <n-button size="tiny" round quaternary @click="cycleThinking">
