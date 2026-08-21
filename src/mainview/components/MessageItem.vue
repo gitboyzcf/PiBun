@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { marked } from "marked";
+import { NButton } from "naive-ui";
+import { Copy } from "@icon-park/vue-next";
 import type { ChatItem } from "../store";
 import { showToast } from "../store";
 import ToolCallCard from "./ToolCallCard.vue";
@@ -39,14 +41,12 @@ function copyText(text: string) {
       </details>
       <div class="markdown" v-html="html"></div>
       <span v-if="item.streaming" class="cursor-blink">▍</span>
-      <button
-        v-if="!item.streaming && item.text"
-        class="copy-btn"
-        title="复制回复 (/copy)"
-        @click="copyText(item.text)"
-      >
-        📋 复制
-      </button>
+      <div v-if="!item.streaming && item.text" class="msg-actions">
+        <n-button size="tiny" quaternary @click="copyText(item.text)">
+          <template #icon><copy theme="outline" size="12" /></template>
+          复制
+        </n-button>
+      </div>
     </div>
   </div>
 

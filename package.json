@@ -13,8 +13,10 @@
 	},
 	"dependencies": {
 		"@earendil-works/pi-coding-agent": "^0.84.2",
+		"@icon-park/vue-next": "^1.4.2",
 		"electrobun": "1.18.1",
-		"marked": "^15.0.0"
+		"marked": "^15.0.0",
+		"naive-ui": "^2.45.2"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

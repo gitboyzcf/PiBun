@@ -90,9 +90,39 @@ body,
   font-size: 12px;
   color: var(--text-secondary);
   padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cwd-line .cwd-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.welcome-tips {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+.welcome-logo {
+  display: grid;
+  place-items: center;
+}
+.msg-actions {
+  margin-top: 4px;
+  opacity: 0.6;
+}
+.msg-actions:hover {
+  opacity: 1;
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .session-list {
@@ -612,35 +642,7 @@ body,
   margin-top: 8px;
 }
 
-/* ---------- Toast ---------- */
-.toast-stack {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 200;
-}
-.toast {
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  max-width: 380px;
-}
-.toast.error {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: var(--danger);
-}
-.toast.info {
-  border-color: #a7f3d0;
-  background: #ecfdf5;
-  color: var(--accent);
-}
+/* ---------- Toast（已由 Naive UI discrete message 接管，样式保留备用） ---------- */
 
 /* ---------- 头部工具栏 ---------- */
 .toolbar {
@@ -669,6 +671,9 @@ body,
 }
 .footer-item {
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .footer-model {
   font-weight: 600;
@@ -926,6 +931,107 @@ body,
   text-align: center;
 }
 
+/* ---------- Codex 级动效 ---------- */
+.chat-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.chat-wrap .chat-view {
+  flex: 1;
+}
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* 消息入场 */
+.msg-enter-active {
+  transition: all 0.22s cubic-bezier(0.21, 1.02, 0.73, 1);
+}
+.msg-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.msg-leave-active {
+  transition: all 0.15s ease;
+}
+.msg-leave-to {
+  opacity: 0;
+}
+/* 回到底部悬浮钮 */
+.jump-bottom {
+  position: absolute;
+  right: 28px;
+  bottom: 16px;
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+/* 弹出菜单 */
+.popup-menu {
+  animation: pop-in 0.16s cubic-bezier(0.21, 1.02, 0.73, 1);
+  transform-origin: bottom left;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+/* 工具卡片展开 */
+.tool-detail {
+  animation: expand-in 0.18s ease;
+}
+@keyframes expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+/* 思考块展开 */
+.thinking-block[open] {
+  animation: expand-in 0.18s ease;
+}
+/* 按钮微交互 */
+.n-button {
+  transition:
+    transform 0.1s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease !important;
+}
+.n-button:active {
+  transform: scale(0.94);
+}
+/* 侧栏会话项 */
+.session-item {
+  transition:
+    background 0.12s ease,
+    box-shadow 0.12s ease,
+    transform 0.12s ease;
+}
+.session-item:active {
+  transform: scale(0.98);
+}
+/* 输入框聚焦过渡 */
+.input-box {
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.input-box:focus-within {
+  box-shadow: 0 4px 28px rgba(16, 163, 127, 0.12);
+}
 /* 滚动条 */
 ::-webkit-scrollbar {
   width: 8px;

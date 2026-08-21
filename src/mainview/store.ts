@@ -3,6 +3,7 @@
  * 负责把 pi agent 事件流转换成 UI 渲染条目
  */
 import { reactive } from "vue";
+import { createDiscreteApi } from "naive-ui";
 import type {
 	ActiveSession,
 	AppSettings,
@@ -12,6 +13,9 @@ import type {
 	SessionStatsPayload,
 	SessionSummary,
 } from "../shared/rpc-schema";
+
+/** 全局提示（规范：createDiscreteApi，不用 useMessage） */
+const { message } = createDiscreteApi(["message"]);
 
 // ---- 渲染条目模型 ----
 export interface UserItem {
@@ -42,12 +46,6 @@ export interface NoticeItem {
 }
 export type ChatItem = UserItem | AssistantItem | ToolItem | NoticeItem;
 
-interface Toast {
-	id: number;
-	level: "info" | "error";
-	text: string;
-}
-
 let seq = 0;
 const nid = () => `item-${++seq}`;
 
@@ -67,23 +65,23 @@ export const store = reactive({
 	current: null as ActiveSession | null,
 	items: [] as ChatItem[],
 	models: [] as ModelInfo[],
-	toasts: [] as Toast[],
 	modal: null as ModalKind,
 	stats: null as SessionStatsPayload | null,
 	queue: { steering: [], followUp: [] } as QueueState,
 	/** abort/clearQueue 后恢复给编辑器的文本 */
 	restoredText: "",
+	/** 乐观渲染的用户消息文本（用于事件回流去重） */
+	_lastOptimisticText: "",
 	/** 当前流式中的 assistant 条目 */
 	_streamingItem: null as AssistantItem | null,
 });
 
 export function showToast(level: "info" | "error", text: string) {
-	const id = Date.now() + Math.random();
-	store.toasts.push({ id, level, text });
-	setTimeout(() => {
-		const i = store.toasts.findIndex((t) => t.id === id);
-		if (i >= 0) store.toasts.splice(i, 1);
-	}, level === "error" ? 6000 : 3000);
+	if (level === "error") {
+		message.error(text, { duration: 6000 });
+	} else {
+		message.info(text, { duration: 3000 });
+	}
 }
 
 // ---- 工具结果转可读文本 ----
@@ -175,11 +173,13 @@ export function handleAgentEvent(sessionId: string, raw: unknown) {
 				store.items.push(item);
 				store._streamingItem = item;
 			} else if (e.message?.role === "user") {
-				store.items.push({
-					kind: "user",
-					id: nid(),
-					text: contentToText(e.message.content),
-				});
+				const text = contentToText(e.message.content);
+				// 乐观渲染去重：与刚发送的文本一致则跳过
+				if (text === store._lastOptimisticText) {
+					store._lastOptimisticText = "";
+				} else {
+					store.items.push({ kind: "user", id: nid(), text });
+				}
 			}
 			break;
 

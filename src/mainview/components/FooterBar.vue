@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
+import { NButton } from "naive-ui";
+import { Robot, Brain, FolderOpen } from "@icon-park/vue-next";
 import { store } from "../store";
 import { cycleThinking, refreshStats } from "../actions";
-import { watch } from "vue";
 
 // agent 运行结束后刷新统计
 watch(
@@ -43,15 +44,13 @@ const contextColor = computed(() => {
 <template>
   <div v-if="store.current" class="footer-bar">
     <span class="footer-item footer-model" :title="store.stats?.model?.id">
-      🤖 {{ store.stats?.model?.name ?? "未选模型" }}
+      <robot theme="outline" size="14" />
+      {{ store.stats?.model?.name ?? "未选模型" }}
     </span>
-    <button
-      class="footer-item footer-btn"
-      title="点击切换 thinking level"
-      @click="cycleThinking"
-    >
-      🧠 {{ store.stats?.thinkingLevel ?? "-" }}
-    </button>
+    <n-button size="tiny" round quaternary @click="cycleThinking">
+      <template #icon><brain theme="outline" size="13" /></template>
+      {{ store.stats?.thinkingLevel ?? "-" }}
+    </n-button>
     <span v-if="tokenText" class="footer-item">{{ tokenText }}</span>
     <span v-if="costText" class="footer-item">{{ costText }}</span>
     <span
@@ -62,7 +61,8 @@ const contextColor = computed(() => {
     >
     <span class="footer-spacer"></span>
     <span class="footer-item footer-cwd" :title="store.current.cwd">
-      📁 {{ store.current.cwd }}
+      <folder-open theme="outline" size="13" />
+      {{ store.current.cwd }}
     </span>
   </div>
 </template>

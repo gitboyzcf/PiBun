@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NModal, NButton } from "naive-ui";
+
 const emit = defineEmits<{ close: [] }>();
 
 const groups = [
@@ -27,21 +29,26 @@ const groups = [
 </script>
 
 <template>
-  <div class="modal-mask" @click.self="emit('close')">
-    <div class="modal">
-      <h2 class="modal-title">快捷键</h2>
-      <div v-for="g in groups" :key="g.title" class="form-section">
-        <label class="form-label">{{ g.title }}</label>
-        <div class="hotkey-list">
-          <div v-for="[k, d] in g.items" :key="k" class="hotkey-row">
-            <kbd class="hotkey-key">{{ k }}</kbd>
-            <span>{{ d }}</span>
-          </div>
+  <n-modal
+    :show="true"
+    preset="card"
+    title="快捷键"
+    style="width: 460px"
+    @close="emit('close')"
+  >
+    <div v-for="g in groups" :key="g.title" class="form-section">
+      <label class="form-label">{{ g.title }}</label>
+      <div class="hotkey-list">
+        <div v-for="[k, d] in g.items" :key="k" class="hotkey-row">
+          <kbd class="hotkey-key">{{ k }}</kbd>
+          <span>{{ d }}</span>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn primary" @click="emit('close')">关闭</button>
-      </div>
     </div>
-  </div>
+    <template #footer>
+      <div class="modal-footer">
+        <n-button type="primary" @click="emit('close')">关闭</n-button>
+      </div>
+    </template>
+  </n-modal>
 </template>

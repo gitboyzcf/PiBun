@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { NButton, NTooltip } from "naive-ui";
+import { Picture, Send, Pause, Right, History } from "@icon-park/vue-next";
 import { store } from "../store";
 import {
 	sendPrompt,
@@ -60,6 +62,14 @@ watch(
 		}
 	},
 );
+
+// 输入框自动增高（Codex 手感）
+watch(text, () => {
+	const ta = textareaRef.value;
+	if (!ta) return;
+	ta.style.height = "auto";
+	ta.style.height = Math.min(ta.scrollHeight, 180) + "px";
+});
 
 watch(text, (v) => {
 	// slash 菜单：以 / 开头且未含空格
@@ -311,7 +321,9 @@ function restoreQueue() {
         </div>
       </div>
 
-      <button class="attach-btn" title="添加图片（也可直接粘贴）" @click="fileInputRef?.click()">🖼</button>
+      <n-button quaternary circle title="添加图片（也可直接粘贴）" @click="fileInputRef?.click()">
+        <template #icon><picture theme="outline" size="17" /></template>
+      </n-button>
       <input
         ref="fileInputRef"
         type="file"
@@ -335,11 +347,25 @@ function restoreQueue() {
       ></textarea>
 
       <template v-if="store.current?.isStreaming">
-        <button class="send-btn steer" title="插队发送（当前步骤后执行）" @click="submit('steer')">↪</button>
-        <button class="send-btn followup" title="排队（agent 全部完成后执行）" @click="submit('followUp')">⏳</button>
-        <button class="send-btn stop" title="停止 (Esc)" @click="abortRun">■</button>
+        <n-tooltip trigger="hover"><template #trigger>
+          <n-button circle type="info" @click="submit('steer')">
+            <template #icon><right theme="outline" size="15" fill="#fff" /></template>
+          </n-button>
+        </template>插队发送（当前步骤后执行）</n-tooltip>
+        <n-tooltip trigger="hover"><template #trigger>
+          <n-button circle color="#b45309" @click="submit('followUp')">
+            <template #icon><history theme="outline" size="15" fill="#fff" /></template>
+          </n-button>
+        </template>排队（agent 全部完成后执行）</n-tooltip>
+        <n-tooltip trigger="hover"><template #trigger>
+          <n-button circle type="error" @click="abortRun">
+            <template #icon><pause theme="outline" size="15" fill="#fff" /></template>
+          </n-button>
+        </template>停止 (Esc)</n-tooltip>
       </template>
-      <button v-else class="send-btn" title="发送 (Enter)" @click="submit()">➤</button>
+      <n-button v-else circle type="primary" title="发送 (Enter)" @click="submit()">
+        <template #icon><send theme="outline" size="15" fill="#fff" /></template>
+      </n-button>
     </div>
 
     <div class="input-hint">

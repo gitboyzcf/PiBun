@@ -86,9 +86,17 @@ export function sendPrompt(
 	streamingBehavior?: "steer" | "followUp",
 ) {
 	if (!store.current || !text.trim()) return;
+	const trimmed = text.trim();
+	// 乐观渲染：用户消息立即上屏（事件回流时按文本去重）
+	store.items.push({
+		kind: "user",
+		id: `optim-${Date.now()}`,
+		text: trimmed,
+	});
+	store._lastOptimisticText = trimmed;
 	rpc.send.prompt({
 		sessionId: store.current.id,
-		text: text.trim(),
+		text: trimmed,
 		images,
 		streamingBehavior,
 	});

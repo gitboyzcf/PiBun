@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { NButton } from "naive-ui";
+import { Add, FolderOpen, History } from "@icon-park/vue-next";
 import { store } from "../store";
 import { newSession, openSession } from "../actions";
 
@@ -19,10 +21,14 @@ function fmtTime(iso: string) {
       <span class="brand-name">PiBun</span>
     </div>
 
-    <button class="new-session-btn" @click="newSession">＋ 新会话</button>
+    <n-button block dashed @click="newSession">
+      <template #icon><add /></template>
+      新会话
+    </n-button>
 
     <div class="cwd-line" :title="store.settings?.cwd">
-      📁 {{ store.settings?.cwd }}
+      <folder-open theme="outline" size="13" />
+      <span class="cwd-text">{{ store.settings?.cwd }}</span>
     </div>
 
     <div class="session-list">
@@ -41,7 +47,8 @@ function fmtTime(iso: string) {
         </div>
       </div>
       <div v-if="store.sessions.length === 0" class="empty-hint">
-        暂无历史会话
+        <history theme="outline" size="28" fill="#c0c4cc" />
+        <div>暂无历史会话</div>
       </div>
     </div>
   </aside>
