@@ -7,3 +7,4 @@ artifacts/
 # 本地产物
 .tmp-eb/
 spike/
+session-*.jsonl
