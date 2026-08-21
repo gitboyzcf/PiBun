@@ -1,8 +1,8 @@
 {
-	"name": "pibun",
+	"name": "pi-agent-desktop",
 	"version": "0.1.0",
 	"type": "module",
-	"description": "PiBun - pi agent 可视化桌面客户端（Electrobun + Vue 3）",
+	"description": "pi-agent-desktop - pi agent 可视化桌面客户端（Electrobun + Vue 3）",
 	"scripts": {
 		"start": "vite build && electrobun dev",
 		"dev": "electrobun dev --watch",

@@ -37,10 +37,10 @@ onMounted(() => {
   <div v-if="visible" class="splash" :class="{ leaving }">
     <div class="splash-inner">
       <div class="splash-logo-wrap">
-        <img :src="logoUrl" class="splash-logo" alt="PiBun" />
+        <img :src="logoUrl" class="splash-logo" alt="Pi Agent Desktop" />
         <div class="splash-ring"></div>
       </div>
-      <div class="splash-brand">PiBun</div>
+      <div class="splash-brand">Pi Agent Desktop</div>
       <div class="splash-slogan">pi agent 可视化客户端</div>
       <div class="splash-bar"><div class="splash-bar-fill"></div></div>
     </div>

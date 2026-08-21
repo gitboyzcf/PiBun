@@ -8,7 +8,7 @@ import { join } from "path";
 import { mkdirSync } from "fs";
 import type { AppSettings } from "../shared/rpc-schema";
 
-const dataDir = join(homedir(), ".pibun");
+const dataDir = join(homedir(), ".pi-agent-desktop");
 mkdirSync(dataDir, { recursive: true });
 
 const db = new Database(join(dataDir, "settings.db"));

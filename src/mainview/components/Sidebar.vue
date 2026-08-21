@@ -18,8 +18,8 @@ function fmtTime(iso: string) {
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <img :src="logoUrl" class="brand-logo" alt="PiBun" />
-      <span class="brand-name">PiBun</span>
+      <img :src="logoUrl" class="brand-logo" alt="Pi Agent Desktop" />
+      <span class="brand-name">Pi Agent</span>
     </div>
 
     <n-button block dashed @click="newSession">

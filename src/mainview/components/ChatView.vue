@@ -64,8 +64,8 @@ watch(
   <div class="chat-wrap">
     <div ref="listRef" class="chat-view" @scroll.passive="onScroll">
       <div v-if="!store.current" class="welcome">
-        <img :src="logoUrl" class="welcome-logo-img" alt="PiBun" />
-        <h2>PiBun</h2>
+        <img :src="logoUrl" class="welcome-logo-img" alt="Pi Agent Desktop" />
+        <h2>Pi Agent Desktop</h2>
         <p>pi agent 可视化客户端 — 点击左侧「新会话」开始</p>
         <p class="welcome-tips">/ 命令 · @ 引用文件 · ! 执行 shell · 支持粘贴图片</p>
       </div>

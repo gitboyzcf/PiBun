@@ -45,7 +45,7 @@ const themeOverrides = {
         <header class="chat-header">
           <div class="chat-title">
             <span class="chat-name">{{
-              store.current?.name || store.current?.id?.slice(0, 8) || "PiBun"
+              store.current?.name || store.current?.id?.slice(0, 8) || "Pi Agent"
             }}</span>
             <span v-if="store.current?.model" class="model-badge">
               {{ store.current.model.name }}

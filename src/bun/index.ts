@@ -147,7 +147,7 @@ piService.onState((session) => {
 const url = await getMainViewUrl();
 
 new BrowserWindow({
-	title: "PiBun - pi agent 客户端",
+	title: "Pi Agent Desktop",
 	url,
 	rpc,
 	frame: {
@@ -158,4 +158,4 @@ new BrowserWindow({
 	},
 });
 
-console.log("PiBun started!");
+console.log("pi-agent-desktop started!");

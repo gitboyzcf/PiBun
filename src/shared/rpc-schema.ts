@@ -1,5 +1,5 @@
 /**
- * PiBun RPC 协议定义（bun 主进程 <-> webview）
+ * pi-agent-desktop RPC 协议定义（bun 主进程 <-> webview）
  * Electrobun 约定：
  *  - bun.requests    : webview 发起、bun 处理的请求
  *  - bun.messages    : webview 发往 bun 的单向消息
@@ -40,7 +40,7 @@ export interface AppSettings {
 }
 
 export interface ActiveSession {
-	/** PiBun 内部句柄 id（= pi sessionId） */
+	/** 内部句柄 id（= pi sessionId） */
 	id: string;
 	sessionFile?: string;
 	cwd: string;

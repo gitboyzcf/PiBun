@@ -1,4 +1,4 @@
-# PiBun
+# pi-agent-desktop
 
 [pi agent](https://pi.dev) 的可视化桌面客户端 —— 基于 [Electrobun](https://framework.blackboard.sh/electrobun/) + Vue 3。
 

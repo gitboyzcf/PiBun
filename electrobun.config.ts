@@ -2,8 +2,8 @@ import type { ElectrobunConfig } from "electrobun";
 
 export default {
 	app: {
-		name: "PiBun",
-		identifier: "pibun.electrobun.dev",
+		name: "pi-agent-desktop",
+		identifier: "piagentdesktop.electrobun.dev",
 		version: "0.1.0",
 	},
 	build: {
